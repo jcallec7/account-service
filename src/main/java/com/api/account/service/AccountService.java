@@ -7,7 +7,7 @@ import com.api.account.dto.common.ApiResponseDTO;
 
 public interface AccountService {
 
-    AccountResponseDTO createAccount(AccountCreateDTO accountCreateDTO);
+    AccountResponseDTO createAccount(AccountCreateDTO accountCreateDTO) throws IllegalAccessException;
     AccountResponseDTO getAccount(Long id);
     AccountResponseDTO updateAccount(Long id, AccountUpdateDTO accountUpdateDTO) throws IllegalAccessException;
     ApiResponseDTO deleteAccount(Long id) throws IllegalAccessException;

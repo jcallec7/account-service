@@ -11,6 +11,7 @@ import com.api.account.model.Account;
 import com.api.account.repository.AccountRepository;
 import com.api.account.service.AccountService;
 import com.api.account.service.MessageService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 import static com.api.account.utils.utils.allowedFieldsValidator;
 import static com.api.account.utils.utils.getNonNullFields;
@@ -35,7 +33,8 @@ public class AccountServiceImpl implements AccountService {
     private final MessageService messageService;
     private final WebClient webClient;
 
-    public AccountResponseDTO createAccount(AccountCreateDTO accountCreateDTO) {
+    @Transactional
+    public AccountResponseDTO createAccount(AccountCreateDTO accountCreateDTO) throws IllegalAccessException {
 
         if (accountCreateDTO.getAccountType().getCode().equals(AccountType.INVALID.getCode())) {
             throw new BadRequestException(messageService.getMessage("invalid.account.type"));
@@ -43,6 +42,17 @@ public class AccountServiceImpl implements AccountService {
 
         if (accountRepository.existsByAccountNumberAndStatusTrue(accountCreateDTO.getAccountNumber())) {
             throw new BadRequestException(messageService.getMessage("account.number.already.exist"));
+        }
+
+        Optional<Account> accountDisabled = accountRepository.findByAccountNumberAndStatusFalse(accountCreateDTO.getAccountNumber());
+
+        if(accountDisabled.isPresent()) {
+
+            AccountUpdateDTO accountUpdateDTO = new AccountUpdateDTO();
+            accountUpdateDTO.setStatus(true);
+
+            return updateAccount(accountDisabled.get().getId(), accountUpdateDTO);
+
         }
 
         webClient.get()
@@ -83,7 +93,7 @@ public class AccountServiceImpl implements AccountService {
 
         ModelMapper modelMapper = new ModelMapper();
 
-        StringJoiner fieldsNotAllowed = allowedFieldsValidator(accountUpdateDTO, new HashSet<>(Arrays.asList("accountNumber", "clientId")));
+        StringJoiner fieldsNotAllowed = allowedFieldsValidator(accountUpdateDTO, new HashSet<>(Arrays.asList("accountNumber", "accountType", "clientId")));
 
         if (fieldsNotAllowed.length() > 0) {
             Object[] params = {fieldsNotAllowed.toString()};
@@ -92,7 +102,7 @@ public class AccountServiceImpl implements AccountService {
 
         Map<String, Object> nonNullFields = getNonNullFields(accountUpdateDTO);
 
-        Account account = accountRepository.findByIdAndStatusTrue(id).orElseThrow(
+        Account account = accountRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(messageService.getMessage("register.not.found"))
         );
 

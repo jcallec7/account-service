@@ -1,10 +1,7 @@
 package com.api.account.dto.account;
 
 import com.api.account.enums.AccountType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,6 +15,7 @@ public class AccountCreateDTO {
     private AccountType accountType;
     @NotNull
     @PositiveOrZero
+    @Digits(integer = 7, fraction = 2)
     private BigDecimal balance;
     @NotNull
     @Positive

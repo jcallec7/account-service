@@ -20,7 +20,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/crear")
-    public ResponseEntity<AccountResponseDTO> createAccount(@RequestBody @Valid AccountCreateDTO accountCreateDTO) {
+    public ResponseEntity<AccountResponseDTO> createAccount(@RequestBody @Valid AccountCreateDTO accountCreateDTO) throws IllegalAccessException {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(accountCreateDTO));
     }
 
