@@ -1,0 +1,16 @@
+server:
+  port: 7072
+spring:
+  datasource:
+    password: nttdata2025
+    url: jdbc:postgresql://localhost:5432/accounts
+    username: nttdata
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
