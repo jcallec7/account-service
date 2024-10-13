@@ -87,8 +87,6 @@ public class AccountServiceImpl implements AccountService {
         return modelMapper.map(account, AccountResponseDTO.class);
     }
 
-    ;
-
     public AccountResponseDTO updateAccount(Long id, AccountUpdateDTO accountUpdateDTO) throws IllegalAccessException {
 
         ModelMapper modelMapper = new ModelMapper();
